@@ -1,34 +1,36 @@
 {
-    "dependencies": [
-        {
-            "name": "kubernetes-mixin",
-            "source": {
-                "git": {
-                    "remote": "https://github.com/kubernetes-monitoring/kubernetes-mixin",
-                    "subdir": ""
-                }
-            },
-            "version": "12ad552c7457a098e6d3bdc731a2d1739e88c903"
-        },
-        {
-            "name": "grafonnet",
-            "source": {
-                "git": {
-                    "remote": "https://github.com/grafana/grafonnet-lib",
-                    "subdir": "grafonnet"
-                }
-            },
-            "version": "11022f5e920ac1ea960556193e3f0ab57d70d7c5"
-        },
-        {
-            "name": "grafana-builder",
-            "source": {
-                "git": {
-                    "remote": "https://github.com/kausalco/public",
-                    "subdir": "grafana-builder"
-                }
-            },
-            "version": "5d7e5391010c768a6ddd39163c35662f379e20ca"
+  "version": 1,
+  "dependencies": [
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/grafana/grafonnet-lib.git",
+          "subdir": "grafonnet"
         }
-    ]
+      },
+      "version": "daad85cf3fad3580e58029414630e29956aefe21",
+      "sum": "zkOBVXtNSGlOdbm5TRCbEik7c/Jk+btbJqaE9qW8j3Y="
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/grafana/jsonnet-libs.git",
+          "subdir": "grafana-builder"
+        }
+      },
+      "version": "89299b1c5e93952622801795353d496fb337f44e",
+      "sum": "GRf2GvwEU4jhXV+JOonXSZ4wdDv8mnHBPCQ6TUVd+g8="
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/kubernetes-monitoring/kubernetes-mixin.git",
+          "subdir": ""
+        }
+      },
+      "version": "faa0561a823cbd3b726aaefffcf6ee317547041a",
+      "sum": "CaoF5iyX+bntNZgcHeKcwVO1wc7X9W6u/JOuhqSW9/Q="
+    }
+  ],
+  "legacyImports": false
 }
