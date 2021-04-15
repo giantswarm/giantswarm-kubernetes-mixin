@@ -10,7 +10,7 @@
    "hideControls": false,
    "id": null,
    "links": [ ],
-   "refresh": "",
+   "refresh": "10s",
    "rows": [
       {
          "collapse": false,
@@ -23,16 +23,18 @@
                "dashes": false,
                "datasource": "$datasource",
                "fill": 1,
+               "fillGradient": 0,
                "gridPos": { },
                "id": 2,
                "legend": {
-                  "alignAsTable": false,
+                  "alignAsTable": true,
                   "avg": true,
                   "current": true,
                   "max": true,
                   "min": true,
                   "rightSide": false,
                   "show": true,
+                  "sideWidth": null,
                   "total": false,
                   "values": true
                },
@@ -47,16 +49,23 @@
                "repeat": null,
                "seriesOverrides": [ ],
                "spaceLength": 10,
-               "span": 12,
-               "stack": false,
+               "span": 9,
+               "stack": true,
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "(kubelet_volume_stats_capacity_bytes{app=\"kubelet\", persistentvolumeclaim=\"$volume\"} - kubelet_volume_stats_available_bytes{app=\"kubelet\", persistentvolumeclaim=\"$volume\"}) / kubelet_volume_stats_capacity_bytes{app=\"kubelet\", persistentvolumeclaim=\"$volume\"} * 100\n",
+                     "expr": "(\n  sum without(instance, node) (kubelet_volume_stats_capacity_bytes{cluster_id=\"$cluster\", app=\"kubelet\", namespace=\"$namespace\", persistentvolumeclaim=\"$volume\"})\n  -\n  sum without(instance, node) (kubelet_volume_stats_available_bytes{cluster_id=\"$cluster\", app=\"kubelet\", namespace=\"$namespace\", persistentvolumeclaim=\"$volume\"})\n)\n",
                      "format": "time_series",
                      "intervalFactor": 1,
-                     "legendFormat": "{{ Usage }}",
+                     "legendFormat": "Used Space",
                      "refId": "A"
+                  },
+                  {
+                     "expr": "sum without(instance, node) (kubelet_volume_stats_available_bytes{cluster_id=\"$cluster\", app=\"kubelet\", namespace=\"$namespace\", persistentvolumeclaim=\"$volume\"})\n",
+                     "format": "time_series",
+                     "intervalFactor": 1,
+                     "legendFormat": "Free Space",
+                     "refId": "B"
                   }
                ],
                "thresholds": [ ],
@@ -78,22 +87,102 @@
                },
                "yaxes": [
                   {
-                     "format": "percent",
+                     "format": "bytes",
                      "label": null,
                      "logBase": 1,
-                     "max": 100,
+                     "max": null,
                      "min": 0,
                      "show": true
                   },
                   {
-                     "format": "percent",
+                     "format": "bytes",
                      "label": null,
                      "logBase": 1,
-                     "max": 100,
+                     "max": null,
                      "min": 0,
                      "show": true
                   }
                ]
+            },
+            {
+               "cacheTimeout": null,
+               "colorBackground": false,
+               "colorValue": false,
+               "colors": [
+                  "rgba(50, 172, 45, 0.97)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(245, 54, 54, 0.9)"
+               ],
+               "datasource": "$datasource",
+               "format": "percent",
+               "gauge": {
+                  "maxValue": 100,
+                  "minValue": 0,
+                  "show": true,
+                  "thresholdLabels": false,
+                  "thresholdMarkers": true
+               },
+               "gridPos": { },
+               "id": 3,
+               "interval": null,
+               "links": [ ],
+               "mappingType": 1,
+               "mappingTypes": [
+                  {
+                     "name": "value to text",
+                     "value": 1
+                  },
+                  {
+                     "name": "range to text",
+                     "value": 2
+                  }
+               ],
+               "maxDataPoints": 100,
+               "nullPointMode": "connected",
+               "nullText": null,
+               "postfix": "",
+               "postfixFontSize": "50%",
+               "prefix": "",
+               "prefixFontSize": "50%",
+               "rangeMaps": [
+                  {
+                     "from": "null",
+                     "text": "N/A",
+                     "to": "null"
+                  }
+               ],
+               "span": 3,
+               "sparkline": {
+                  "fillColor": "rgba(31, 118, 189, 0.18)",
+                  "full": false,
+                  "lineColor": "rgb(31, 120, 193)",
+                  "show": false
+               },
+               "tableColumn": "",
+               "targets": [
+                  {
+                     "expr": "max without(instance,node) (\n(\n  kubelet_volume_stats_capacity_bytes{cluster_id=\"$cluster\", app=\"kubelet\", namespace=\"$namespace\", persistentvolumeclaim=\"$volume\"}\n  -\n  kubelet_volume_stats_available_bytes{cluster_id=\"$cluster\", app=\"kubelet\", namespace=\"$namespace\", persistentvolumeclaim=\"$volume\"}\n)\n/\nkubelet_volume_stats_capacity_bytes{cluster_id=\"$cluster\", app=\"kubelet\", namespace=\"$namespace\", persistentvolumeclaim=\"$volume\"}\n* 100)\n",
+                     "format": "time_series",
+                     "intervalFactor": 2,
+                     "legendFormat": "",
+                     "refId": "A"
+                  }
+               ],
+               "thresholds": "80, 90",
+               "title": "Volume Space Usage",
+               "tooltip": {
+                  "shared": false
+               },
+               "type": "singlestat",
+               "valueFontSize": "80%",
+               "valueMaps": [
+                  {
+                     "op": "=",
+                     "text": "N/A",
+                     "value": "null"
+                  }
+               ],
+               "valueName": "current"
             }
          ],
          "repeat": null,
@@ -115,16 +204,18 @@
                "dashes": false,
                "datasource": "$datasource",
                "fill": 1,
+               "fillGradient": 0,
                "gridPos": { },
-               "id": 3,
+               "id": 4,
                "legend": {
-                  "alignAsTable": false,
+                  "alignAsTable": true,
                   "avg": true,
                   "current": true,
                   "max": true,
                   "min": true,
                   "rightSide": false,
                   "show": true,
+                  "sideWidth": null,
                   "total": false,
                   "values": true
                },
@@ -139,16 +230,23 @@
                "repeat": null,
                "seriesOverrides": [ ],
                "spaceLength": 10,
-               "span": 12,
-               "stack": false,
+               "span": 9,
+               "stack": true,
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "kubelet_volume_stats_inodes_used{app=\"kubelet\", persistentvolumeclaim=\"$volume\"} / kubelet_volume_stats_inodes{app=\"kubelet\", persistentvolumeclaim=\"$volume\"} * 100\n",
+                     "expr": "sum without(instance, node) (kubelet_volume_stats_inodes_used{cluster_id=\"$cluster\", app=\"kubelet\", namespace=\"$namespace\", persistentvolumeclaim=\"$volume\"})\n",
                      "format": "time_series",
                      "intervalFactor": 1,
-                     "legendFormat": "{{ Usage }}",
+                     "legendFormat": "Used inodes",
                      "refId": "A"
+                  },
+                  {
+                     "expr": "(\n  sum without(instance, node) (kubelet_volume_stats_inodes{cluster_id=\"$cluster\", app=\"kubelet\", namespace=\"$namespace\", persistentvolumeclaim=\"$volume\"})\n  -\n  sum without(instance, node) (kubelet_volume_stats_inodes_used{cluster_id=\"$cluster\", app=\"kubelet\", namespace=\"$namespace\", persistentvolumeclaim=\"$volume\"})\n)\n",
+                     "format": "time_series",
+                     "intervalFactor": 1,
+                     "legendFormat": " Free inodes",
+                     "refId": "B"
                   }
                ],
                "thresholds": [ ],
@@ -170,22 +268,102 @@
                },
                "yaxes": [
                   {
-                     "format": "percent",
+                     "format": "none",
                      "label": null,
                      "logBase": 1,
-                     "max": 100,
+                     "max": null,
                      "min": 0,
                      "show": true
                   },
                   {
-                     "format": "percent",
+                     "format": "none",
                      "label": null,
                      "logBase": 1,
-                     "max": 100,
+                     "max": null,
                      "min": 0,
                      "show": true
                   }
                ]
+            },
+            {
+               "cacheTimeout": null,
+               "colorBackground": false,
+               "colorValue": false,
+               "colors": [
+                  "rgba(50, 172, 45, 0.97)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(245, 54, 54, 0.9)"
+               ],
+               "datasource": "$datasource",
+               "format": "percent",
+               "gauge": {
+                  "maxValue": 100,
+                  "minValue": 0,
+                  "show": true,
+                  "thresholdLabels": false,
+                  "thresholdMarkers": true
+               },
+               "gridPos": { },
+               "id": 5,
+               "interval": null,
+               "links": [ ],
+               "mappingType": 1,
+               "mappingTypes": [
+                  {
+                     "name": "value to text",
+                     "value": 1
+                  },
+                  {
+                     "name": "range to text",
+                     "value": 2
+                  }
+               ],
+               "maxDataPoints": 100,
+               "nullPointMode": "connected",
+               "nullText": null,
+               "postfix": "",
+               "postfixFontSize": "50%",
+               "prefix": "",
+               "prefixFontSize": "50%",
+               "rangeMaps": [
+                  {
+                     "from": "null",
+                     "text": "N/A",
+                     "to": "null"
+                  }
+               ],
+               "span": 3,
+               "sparkline": {
+                  "fillColor": "rgba(31, 118, 189, 0.18)",
+                  "full": false,
+                  "lineColor": "rgb(31, 120, 193)",
+                  "show": false
+               },
+               "tableColumn": "",
+               "targets": [
+                  {
+                     "expr": "max without(instance,node) (\nkubelet_volume_stats_inodes_used{cluster_id=\"$cluster\", app=\"kubelet\", namespace=\"$namespace\", persistentvolumeclaim=\"$volume\"}\n/\nkubelet_volume_stats_inodes{cluster_id=\"$cluster\", app=\"kubelet\", namespace=\"$namespace\", persistentvolumeclaim=\"$volume\"}\n* 100)\n",
+                     "format": "time_series",
+                     "intervalFactor": 2,
+                     "legendFormat": "",
+                     "refId": "A"
+                  }
+               ],
+               "thresholds": "80, 90",
+               "title": "Volume inodes Usage",
+               "tooltip": {
+                  "shared": false
+               },
+               "type": "singlestat",
+               "valueFontSize": "80%",
+               "valueMaps": [
+                  {
+                     "op": "=",
+                     "text": "N/A",
+                     "value": "null"
+                  }
+               ],
+               "valueName": "current"
             }
          ],
          "repeat": null,
@@ -206,8 +384,8 @@
       "list": [
          {
             "current": {
-               "text": "Prometheus",
-               "value": "Prometheus"
+               "text": "default",
+               "value": "default"
             },
             "hide": 0,
             "label": null,
@@ -224,14 +402,34 @@
             "datasource": "$datasource",
             "hide": 0,
             "includeAll": false,
+            "label": "cluster",
+            "multi": false,
+            "name": "cluster",
+            "options": [ ],
+            "query": "label_values(kubelet_volume_stats_capacity_bytes, cluster_id)",
+            "refresh": 2,
+            "regex": "",
+            "sort": 1,
+            "tagValuesQuery": "",
+            "tags": [ ],
+            "tagsQuery": "",
+            "type": "query",
+            "useTags": false
+         },
+         {
+            "allValue": null,
+            "current": { },
+            "datasource": "$datasource",
+            "hide": 0,
+            "includeAll": false,
             "label": "Namespace",
             "multi": false,
             "name": "namespace",
             "options": [ ],
-            "query": "label_values(kubelet_volume_stats_capacity_bytes{app=\"kubelet\"}, exported_namespace)",
+            "query": "label_values(kubelet_volume_stats_capacity_bytes{cluster_id=\"$cluster\", app=\"kubelet\"}, namespace)",
             "refresh": 2,
             "regex": "",
-            "sort": 0,
+            "sort": 1,
             "tagValuesQuery": "",
             "tags": [ ],
             "tagsQuery": "",
@@ -248,10 +446,10 @@
             "multi": false,
             "name": "volume",
             "options": [ ],
-            "query": "label_values(kubelet_volume_stats_capacity_bytes{app=\"kubelet\", exported_namespace=\"$namespace\"}, persistentvolumeclaim)",
+            "query": "label_values(kubelet_volume_stats_capacity_bytes{cluster_id=\"$cluster\", app=\"kubelet\", namespace=\"$namespace\"}, persistentvolumeclaim)",
             "refresh": 2,
             "regex": "",
-            "sort": 0,
+            "sort": 1,
             "tagValuesQuery": "",
             "tags": [ ],
             "tagsQuery": "",
@@ -289,7 +487,7 @@
          "30d"
       ]
    },
-   "timezone": "",
+   "timezone": "UTC",
    "title": "Kubernetes / Persistent Volumes",
    "uid": "919b92a8e8041bd567af9edab12c840c",
    "version": 0
