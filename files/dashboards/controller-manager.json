@@ -10,7 +10,7 @@
    "hideControls": false,
    "id": null,
    "links": [ ],
-   "refresh": "10s",
+   "refresh": "1m",
    "rows": [
       {
          "collapse": false,
@@ -924,7 +924,7 @@
    "schemaVersion": 14,
    "style": "dark",
    "tags": [
-      "kubernetes-mixin"
+      "origin:kubernetes-mixin"
    ],
    "templating": {
       "list": [
