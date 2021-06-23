@@ -1746,7 +1746,8 @@
    "schemaVersion": 14,
    "style": "dark",
    "tags": [
-      "origin:kubernetes-mixin"
+      "origin:kubernetes-mixin",
+      "owner:team-ludacris"
    ],
    "templating": {
       "list": [

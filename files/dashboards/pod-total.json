@@ -893,7 +893,8 @@
    "schemaVersion": 18,
    "style": "dark",
    "tags": [
-      "origin:kubernetes-mixin"
+      "origin:kubernetes-mixin",
+      "owner:team-ludacris"
    ],
    "templating": {
       "list": [

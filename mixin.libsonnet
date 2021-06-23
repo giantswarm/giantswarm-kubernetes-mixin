@@ -21,7 +21,7 @@ kubernetes {
       minimumTimeInterval: '1m',
 
       // Adjust tags to use our semantical scheme
-      dashboardTags: ['origin:kubernetes-mixin'],
+      dashboardTags: ['origin:kubernetes-mixin', 'owner:team-ludacris'],
 
       // Set the default refresh rate to 1m, as the upstream 10s are too short for us.
       refresh: '1m',
