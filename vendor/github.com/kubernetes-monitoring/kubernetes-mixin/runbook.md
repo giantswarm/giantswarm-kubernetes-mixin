@@ -7,7 +7,7 @@ It is a recommended practice that you add an annotation of "runbook" to every pr
 
 Matthew Skelton & Rob Thatcher have an excellent [run book template](https://github.com/SkeltonThatcher/run-book-template). This template will help teams to fully consider most aspects of reliably operating most interesting software systems, if only to confirm that "this section definitely does not apply here" - a valuable realization.
 
-This page collects this repositories alerts and begins the process of describing what they mean and how it might be addressed. Links from alerts to this page are added [automatically](https://github.com/kubernetes-monitoring/kubernetes-mixin/blob/master/alerts/add-runbook-links.libsonnet).
+This page collects this repositories alerts and begins the process of describing what they mean and how it might be addressed. Links from alerts to this page are added [automatically](https://github.com/kubernetes-monitoring/kubernetes-mixin/blob/master/lib/add-runbook-links.libsonnet).
 
 ### Group Name: "kubernetes-absent"
 ##### Alert Name: "KubeAPIDown"
@@ -57,8 +57,8 @@ This page collects this repositories alerts and begins the process of describing
 + *Message*: `A number of pods of daemonset {{$labels.namespace}}/{{$labels.daemonset}} are running where they are not supposed to run.`
 + *Severity*: warning
 
-##### Alert Name: "KubeJobCompletion"
-+ *Message*: `Job {{ $labels.namespace }}/{{ $labels.job_name }} is taking more than 1h to complete.`
+##### Alert Name: "KubeJobNotCompleted"
++ *Message*: `Job {{ $labels.namespace }}/{{ $labels.job_name }} is taking more than {{ "%(kubeJobTimeoutDuration)s" | humanizeDuration }} to complete.`
 + *Severity*: warning
 + *Action*: Check the job using `kubectl describe job <job>` and look at the pod logs using `kubectl logs <pod>` for further information.
 
@@ -98,19 +98,46 @@ This page collects this repositories alerts and begins the process of describing
 + *Severity*: warning
 ### Group Name: "kubernetes-system"
 ##### Alert Name: "KubeNodeNotReady"
-+ *Message*: `{{ $labels.node }} has been unready for more than an 15 minutes"`
++ *Message*: `{{ $labels.node }} has been unready for more than 15 minutes."`
++ *Severity*: warning
+##### Alert Name: "KubeNodeUnreachable"
++ *Message*: `{{ $labels.node }} is unreachable and some workloads may be rescheduled.`
++ *Severity*: warning
+##### Alert Name: "KubeletTooManyPods"
++ *Message*: `Kubelet '{{ $labels.node }}' is running at {{ $value | humanizePercentage }} of its Pod capacity.`
++ *Severity*: info
+##### Alert Name: "KubeNodeReadinessFlapping"
++ *Message*: `The readiness status of node {{ $labels.node }} has changed {{ $value }} times in the last 15 minutes.`
++ *Severity*: warning
+##### Alert Name: "KubeletPlegDurationHigh"
++ *Message*: `The Kubelet Pod Lifecycle Event Generator has a 99th percentile duration of {{ $value }} seconds on node {{ $labels.node }}.`
++ *Severity*: warning
+##### Alert Name: "KubeletPodStartUpLatencyHigh"
++ *Message*: `Kubelet Pod startup 99th percentile latency is {{ $value }} seconds on node {{ $labels.node }}.`
++ *Severity*: warning
+##### Alert Name: "KubeletClientCertificateExpiration"
++ *Message*: `Client certificate for Kubelet on node {{ $labels.node }} expires in 7 days.`
++ *Severity*: warning
+##### Alert Name: "KubeletClientCertificateExpiration"
++ *Message*: `Client certificate for Kubelet on node {{ $labels.node }} expires in 1 day.`
++ *Severity*: critical
+##### Alert Name: "KubeletServerCertificateExpiration"
++ *Message*: `Server certificate for Kubelet on node {{ $labels.node }} expires in 7 days.`
++ *Severity*: warning
+##### Alert Name: "KubeletServerCertificateExpiration"
++ *Message*: `Server certificate for Kubelet on node {{ $labels.node }} expires in 1 day.`
++ *Severity*: critical
+##### Alert Name: "KubeletClientCertificateRenewalErrors"
++ *Message*: `Kubelet on node {{ $labels.node }} has failed to renew its client certificate ({{ $value | humanize }} errors in the last 15 minutes).`
++ *Severity*: warning
+##### Alert Name: "KubeletServerCertificateRenewalErrors"
++ *Message*: `Kubelet on node {{ $labels.node }} has failed to renew its server certificate ({{ $value | humanize }} errors in the last 5 minutes).`
 + *Severity*: warning
 ##### Alert Name: "KubeVersionMismatch"
 + *Message*: `There are {{ $value }} different versions of Kubernetes components running.`
 + *Severity*: warning
 ##### Alert Name: "KubeClientErrors"
 + *Message*: `Kubernetes API server client '{{ $labels.job }}/{{ $labels.instance }}' is experiencing {{ $value | humanizePercentage }} errors.'`
-+ *Severity*: warning
-##### Alert Name: "KubeClientErrors"
-+ *Message*: `Kubernetes API server client '{{ $labels.job }}/{{ $labels.instance }}' is experiencing {{ printf \"%0.0f\" $value }} errors / sec.'`
-+ *Severity*: warning
-##### Alert Name: "KubeletTooManyPods"
-+ *Message*: `Kubelet {{$labels.instance}} is running {{$value}} pods, close to the limit of 110.`
 + *Severity*: warning
 ##### Alert Name: "KubeClientCertificateExpiration"
 + *Message*: `A client certificate used to authenticate to the apiserver is expiring in less than 7 days.`
@@ -125,5 +152,5 @@ This page collects this repositories alerts and begins the process of describing
 
 ## Other Kubernetes Runbooks and troubleshooting
 + [Troubleshoot Clusters ](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/)
-+ [Cloud.gov Kubernetes Runbook ](https://cloud.gov/docs/ops/runbook/troubleshooting-kubernetes/)
++ [Cloud.gov Kubernetes Runbook ](https://landing.app.cloud.gov/docs/ops/runbook/troubleshooting-kubernetes/)
 + [Recover a Broken Cluster](https://codefresh.io/Kubernetes-Tutorial/recover-broken-kubernetes-cluster/)

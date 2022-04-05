@@ -1,5 +1,5 @@
 # Prometheus Monitoring Mixin for Kubernetes
-[![CircleCI](https://circleci.com/gh/kubernetes-monitoring/kubernetes-mixin/tree/master.svg?style=shield)](https://circleci.com/gh/kubernetes-monitoring/kubernetes-mixin)
+[![ci](https://github.com/kubernetes-monitoring/kubernetes-mixin/actions/workflows/ci.yaml/badge.svg)](https://github.com/kubernetes-monitoring/kubernetes-mixin/actions/workflows/ci.yaml)
 
 > NOTE: This project is *pre-release* stage. Flags, configuration, behaviour and design may change significantly in following releases.
 
@@ -7,16 +7,19 @@ A set of Grafana dashboards and Prometheus alerts for Kubernetes.
 
 ## Releases
 
-| Release branch | Kubernetes Compatibility   | Prometheus Compatibility |
-| ------- | -------------------------- | ------------------------ |
-| release-0.1  | v1.13 and before   |           |
-| release-0.2  | v1.14.1 and before | v2.11.0+  |
-| release-0.3  | v1.17 and before   | v2.11.0+  |
-| release-0.4  | v1.18              | v2.11.0+  |
-| release-0.5  | v1.19              | v2.11.0+  |
-| release-0.6  | v1.19+             | v2.11.0+  |
-| release-0.7  | v1.19+             | v2.11.0+  |
-| master       | v1.19+             | v2.11.0+  |
+| Release branch | Kubernetes Compatibility   | Prometheus Compatibility | Kube-state-metrics Compatibility |
+| -------------- | -------------------------- | ------------------------ | -------------------------------- |
+| release-0.1  | v1.13 and before   |           |       |
+| release-0.2  | v1.14.1 and before | v2.11.0+  |       |
+| release-0.3  | v1.17 and before   | v2.11.0+  |       |
+| release-0.4  | v1.18              | v2.11.0+  |       |
+| release-0.5  | v1.19              | v2.11.0+  |       |
+| release-0.6  | v1.19+             | v2.11.0+  |       |
+| release-0.7  | v1.19+             | v2.11.0+  | v1.x  |
+| release-0.8  | v1.20+             | v2.11.0+  | v2.0+ |
+| release-0.9  | v1.20+             | v2.11.0+  | v2.0+ |
+| release-0.10 | v1.20+             | v2.11.0+  | v2.0+ |
+| master       | v1.20+             | v2.11.0+  | v2.0+ |
 
 In Kubernetes 1.14 there was a major [metrics overhaul](https://github.com/kubernetes/enhancements/issues/1206) implemented.
 Therefore v0.1.x of this repository is the last release to support Kubernetes 1.13 and previous version on a best effort basis.
@@ -43,7 +46,7 @@ You can manually generate the alerts, dashboards and rules files, but first you
 must install some tools:
 
 ```
-$ go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
+$ go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
 $ brew install jsonnet
 ```
 
@@ -76,22 +79,12 @@ There are separate dashboards for windows resources.
 4) USE Method / Cluster(Windows)
 5) USE Method / Node(Windows)
 
-These dashboards are based on metrics populated by wmi_exporter(https://github.com/martinlindhe/wmi_exporter) from each Windows node.
-
-Steps to configure wmi_exporter
-1) Download the latest version(v0.7.0 or higher) of wmi_exporter from release page(https://github.com/martinlindhe/wmi_exporter/releases/)
-2) Install the wmi_exporter service.
-```
-  msiexec /i <path-to-msi-file> ENABLED_COLLECTORS=cpu,cs,logical_disk,net,os,system,container,memory LISTEN_PORT=<PORT>
-```
-3) Update the Prometheus server to scrap the metrics from wmi_exporter endpoint.
+These dashboards are based on metrics populated by [windows-exporter](https://github.com/prometheus-community/windows_exporter) from each Windows node.
 
 ## Running the tests
 
-Build the mixins, run the tests:
-
-```
-$ docker run -v $(pwd):/tmp --entrypoint "/bin/promtool" prom/prometheus:latest test rules /tmp/tests.yaml
+```sh
+make test
 ```
 
 ## Using with prometheus-ksonnet
@@ -204,7 +197,7 @@ $ jsonnet -J vendor -m files/dashboards -e '(import "mixin.libsonnet").grafanaDa
 
 ### Customising alert annotations
 
-The steps described bellow extend on the existing mixin library without modifying the original git repository. This is to make consuming updates to your extended alert definitions easier. These definitions can reside outside of this repository and added to your own custom location, where you can define your alert dependencies in your `jsonnetfile.json` and add customisations to the existing definitions.
+The steps described below extend on the existing mixin library without modifying the original git repository. This is to make consuming updates to your extended alert definitions easier. These definitions can reside outside of this repository and added to your own custom location, where you can define your alert dependencies in your `jsonnetfile.json` and add customisations to the existing definitions.
 
 In your working directory, create a new file `kubernetes_mixin_override.libsonnet` with the following:
 

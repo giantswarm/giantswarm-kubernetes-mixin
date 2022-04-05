@@ -19,6 +19,7 @@ kubernetes {
       dashboardNamePrefix: 'Kubernetes / ',
       linkPrefix: '.',
       minimumTimeInterval: '1m',
+      grafanaTimezone: "UTC",
 
       // Adjust tags to use our semantical scheme
       dashboardTags: ['origin:kubernetes-mixin', 'owner:team-ludacris'],

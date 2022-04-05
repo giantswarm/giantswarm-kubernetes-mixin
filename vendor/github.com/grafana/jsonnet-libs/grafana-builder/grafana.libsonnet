@@ -13,10 +13,10 @@
       rows+: [row { panels: panels }],
     },
 
-    addTemplate(name, metric_name, label_name, hide=0):: self {
+    addTemplate(name, metric_name, label_name, hide=0, allValue=null):: self {
       templating+: {
         list+: [{
-          allValue: null,
+          allValue: allValue,
           current: {
             text: 'prod',
             value: 'prod',
@@ -41,10 +41,10 @@
       },
     },
 
-    addMultiTemplate(name, metric_name, label_name, hide=0):: self {
+    addMultiTemplate(name, metric_name, label_name, hide=0, allValue='.+'):: self {
       templating+: {
         list+: [{
-          allValue: '.+',
+          allValue: allValue,
           current: {
             selected: true,
             text: 'All',
@@ -70,6 +70,23 @@
       },
     },
 
+    dashboardLinkUrl(title, url):: self {
+      links+: [
+        {
+          asDropdown: false,
+          icon: 'external link',
+          includeVars: true,
+          keepTime: true,
+          tags: [],
+          targetBlank: true,
+          title: title,
+          tooltip: '',
+          type: 'link',
+          url: url,
+        },
+      ],
+    },
+
     // Stuff that is materialised.
     uid: uid,
     annotations: {
@@ -92,7 +109,7 @@
             value: datasource,
           },
           hide: 0,
-          label: null,
+          label: 'Data Source',
           name: 'datasource',
           options: [],
           query: 'prometheus',
@@ -196,8 +213,8 @@
     timeShift: null,
     title: title,
     tooltip: {
-      shared: false,
-      sort: 0,
+      shared: true,
+      sort: 2,
       value_type: 'individual',
     },
     type: 'graph',
