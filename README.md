@@ -7,11 +7,8 @@ Generated via https://github.com/kubernetes-monitoring/kubernetes-mixin
 To update the records run:
 
 ```
-jsonnet -J vendor -o files/prometheus-rules/rules.json -e '(import "mixin.libsonnet").prometheusRules'
+jsonnet -J vendor -S -e 'std.manifestYamlDoc((import "mixin.libsonnet").prometheusRules)' | yq -P >files/prometheus-rules/rules.yml
 ```
-
-then convert `rules.json` to yaml.
-
 
 ### Grafana dashboards
 
