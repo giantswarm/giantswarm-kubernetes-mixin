@@ -29,8 +29,7 @@
     podLabel: 'pod',
     hostNetworkInterfaceSelector: 'device!~"veth.+"',
     hostMountpointSelector: 'mountpoint="/"',
-    windowsExporterSelector: 'job="kubernetes-windows-exporter"',
-    containerfsSelector: 'container!=""',
+    wmiExporterSelector: 'job="wmi-exporter"',
 
     // Grafana dashboard IDs are necessary for stable links for dashboards
     grafanaDashboardIDs: {
@@ -106,8 +105,5 @@
     // so that specific storage alerts will not fire.With the default selector, adding a label `exclude-from-alerts: 'true'`
     // to the PVC will have the desired effect.
     pvExcludedSelector: 'label_excluded_from_alerts="true"',
-
-    // Default timeout value for k8s Jobs. The jobs which are active beyond this duration would trigger KubeJobNotCompleted alert.
-    kubeJobTimeoutDuration: 12 * 60 * 60,
   },
 }

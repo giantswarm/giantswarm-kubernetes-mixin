@@ -46,7 +46,7 @@ You can manually generate the alerts, dashboards and rules files, but first you
 must install some tools:
 
 ```
-$ go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
+$ go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
 $ brew install jsonnet
 ```
 
@@ -79,7 +79,15 @@ There are separate dashboards for windows resources.
 4) USE Method / Cluster(Windows)
 5) USE Method / Node(Windows)
 
-These dashboards are based on metrics populated by [windows-exporter](https://github.com/prometheus-community/windows_exporter) from each Windows node.
+These dashboards are based on metrics populated by wmi_exporter(https://github.com/martinlindhe/wmi_exporter) from each Windows node.
+
+Steps to configure wmi_exporter
+1) Download the latest version(v0.7.0 or higher) of wmi_exporter from release page(https://github.com/martinlindhe/wmi_exporter/releases/)
+2) Install the wmi_exporter service.
+```
+  msiexec /i <path-to-msi-file> ENABLED_COLLECTORS=cpu,cs,logical_disk,net,os,system,container,memory LISTEN_PORT=<PORT>
+```
+3) Update the Prometheus server to scrap the metrics from wmi_exporter endpoint.
 
 ## Running the tests
 
