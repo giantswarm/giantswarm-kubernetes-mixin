@@ -69,11 +69,14 @@
 
       // For links between grafana dashboards, you need to tell us if your grafana
       // servers under some non-root path.
-      linkPrefix: '.',
+      linkPrefix: '',
 
       // The default refresh time for all dashboards, default to 10s
       refresh: '10s',
       minimumTimeInterval: '1m',
+
+      // Timezone for Grafana dashboards:: UTC, browser, ...
+      grafanaTimezone: 'UTC',
     },
 
     // Opt-in to multiCluster dashboards by overriding this and the clusterLabel.
@@ -82,6 +85,12 @@
 
     namespaceLabel: 'namespace',
 
+    // Default datasource name
+    datasourceName: 'default',
+
+    // Datasource instance filter regex
+    datasourceFilterRegex: '',
+
     // This list of filesystem is referenced in various expressions.
     fstypes: ['ext[234]', 'btrfs', 'xfs', 'zfs'],
     fstypeSelector: 'fstype=~"%s"' % std.join('|', self.fstypes),
@@ -89,5 +98,12 @@
     // This list of disk device names is referenced in various expressions.
     diskDevices: ['mmcblk.p.+', 'nvme.+', 'rbd.+', 'sd.+', 'vd.+', 'xvd.+', 'dm-.+', 'dasd.+'],
     diskDeviceSelector: 'device=~"%s"' % std.join('|', self.diskDevices),
+
+    // Certain workloads (e.g. KubeVirt/CDI) will fully utilise the persistent volume they claim
+    // the size of the PV will never grow since they consume the entirety of the volume by design.
+    // This selector allows an admin to 'pre-mark' the PVC of such a workload (or for any other use case)
+    // so that specific storage alerts will not fire.With the default selector, adding a label `exclude-from-alerts: 'true'`
+    // to the PVC will have the desired effect.
+    pvExcludedSelector: 'label_excluded_from_alerts="true"',
   },
 }
