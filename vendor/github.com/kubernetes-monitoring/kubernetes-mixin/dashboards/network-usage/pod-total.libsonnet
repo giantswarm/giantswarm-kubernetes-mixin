@@ -110,7 +110,7 @@ local singlestat = grafana.singlestat;
         template.new(
           name='cluster',
           datasource='$datasource',
-          query='label_values(kube_pod_info, %s)' % $._config.clusterLabel,
+          query='label_values(up{%(cadvisorSelector)s}, %(clusterLabel)s)' % $._config,
           hide=if $._config.showMultiCluster then '' else '2',
           refresh=2
         );
@@ -257,15 +257,15 @@ local singlestat = grafana.singlestat;
         {
           current: {
             text: 'default',
-            value: 'default',
+            value: $._config.datasourceName,
           },
           hide: 0,
-          label: null,
+          label: 'Data Source',
           name: 'datasource',
           options: [],
           query: 'prometheus',
           refresh: 1,
-          regex: '',
+          regex: $._config.datasourceFilterRegex,
           type: 'datasource',
         },
       )

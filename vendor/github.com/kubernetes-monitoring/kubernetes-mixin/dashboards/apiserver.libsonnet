@@ -141,7 +141,7 @@ local singlestat = grafana.singlestat;
           legend_show=false,
           min=0,
         )
-        .addTarget(prometheus.target('sum(rate(workqueue_adds_total{%(kubeApiserverSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}[5m])) by (instance, name)' % $._config, legendFormat='{{instance}} {{name}}'));
+        .addTarget(prometheus.target('sum(rate(workqueue_adds_total{%(kubeApiserverSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}[%(grafanaIntervalVar)s])) by (instance, name)' % $._config, legendFormat='{{instance}} {{name}}'));
 
       local workQueueDepth =
         graphPanel.new(
@@ -152,7 +152,7 @@ local singlestat = grafana.singlestat;
           legend_show=false,
           min=0,
         )
-        .addTarget(prometheus.target('sum(rate(workqueue_depth{%(kubeApiserverSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}[5m])) by (instance, name)' % $._config, legendFormat='{{instance}} {{name}}'));
+        .addTarget(prometheus.target('sum(rate(workqueue_depth{%(kubeApiserverSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}[%(grafanaIntervalVar)s])) by (instance, name)' % $._config, legendFormat='{{instance}} {{name}}'));
 
 
       local workQueueLatency =
@@ -167,7 +167,7 @@ local singlestat = grafana.singlestat;
           legend_alignAsTable=true,
           legend_rightSide=true,
         )
-        .addTarget(prometheus.target('histogram_quantile(0.99, sum(rate(workqueue_queue_duration_seconds_bucket{%(kubeApiserverSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}[5m])) by (instance, name, le))' % $._config, legendFormat='{{instance}} {{name}}'));
+        .addTarget(prometheus.target('histogram_quantile(0.99, sum(rate(workqueue_queue_duration_seconds_bucket{%(kubeApiserverSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}[%(grafanaIntervalVar)s])) by (instance, name, le))' % $._config, legendFormat='{{instance}} {{name}}'));
 
       local memory =
         graphPanel.new(
@@ -186,7 +186,7 @@ local singlestat = grafana.singlestat;
           format='short',
           min=0,
         )
-        .addTarget(prometheus.target('rate(process_cpu_seconds_total{%(kubeApiserverSelector)s,instance=~"$instance", %(clusterLabel)s="$cluster"}[5m])' % $._config, legendFormat='{{instance}}'));
+        .addTarget(prometheus.target('rate(process_cpu_seconds_total{%(kubeApiserverSelector)s,instance=~"$instance", %(clusterLabel)s="$cluster"}[%(grafanaIntervalVar)s])' % $._config, legendFormat='{{instance}}'));
 
       local goroutines =
         graphPanel.new(
@@ -206,15 +206,15 @@ local singlestat = grafana.singlestat;
         {
           current: {
             text: 'default',
-            value: 'default',
+            value: $._config.datasourceName,
           },
           hide: 0,
-          label: null,
+          label: 'Data Source',
           name: 'datasource',
           options: [],
           query: 'prometheus',
           refresh: 1,
-          regex: '',
+          regex: $._config.datasourceFilterRegex,
           type: 'datasource',
         },
       )
@@ -222,7 +222,7 @@ local singlestat = grafana.singlestat;
         template.new(
           'cluster',
           '$datasource',
-          'label_values(apiserver_request_total, %(clusterLabel)s)' % $._config,
+          'label_values(up{%(kubeApiserverSelector)s}, %(clusterLabel)s)' % $._config,
           label='cluster',
           refresh='time',
           hide=if $._config.showMultiCluster then '' else 'variable',
@@ -233,7 +233,7 @@ local singlestat = grafana.singlestat;
         template.new(
           'instance',
           '$datasource',
-          'label_values(apiserver_request_total{%(kubeApiserverSelector)s, %(clusterLabel)s="$cluster"}, instance)' % $._config,
+          'label_values(up{%(kubeApiserverSelector)s, %(clusterLabel)s="$cluster"}, instance)' % $._config,
           refresh='time',
           includeAll=true,
           sort=1,
@@ -281,6 +281,6 @@ local singlestat = grafana.singlestat;
         .addPanel(memory)
         .addPanel(cpu)
         .addPanel(goroutines)
-      ) + { refresh: $._config.grafanaK8s.refresh },
+      ),
   },
 }
