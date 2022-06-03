@@ -8,7 +8,7 @@ kubernetes {
     kubeletSelector: 'app="kubelet"',
     kubeSchedulerSelector: 'app="kube-scheduler"',
     kubeControllerManagerSelector: 'app="kube-controller-manager"',
-    kubeApiserverSelector: 'app="kubernetes"',
+    kubeApiserverSelector: 'component="apiserver"',
     kubeProxySelector: 'app="kube-proxy"',
     showMultiCluster: true,
     clusterLabel: 'cluster_id',
