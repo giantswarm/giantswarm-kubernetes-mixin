@@ -1,4 +1,4 @@
-local kubernetes = import "kubernetes-mixin/mixin.libsonnet";
+local kubernetes = import 'kubernetes-mixin/mixin.libsonnet';
 
 kubernetes {
   _config+:: {
@@ -8,7 +8,7 @@ kubernetes {
     kubeletSelector: 'app="kubelet"',
     kubeSchedulerSelector: 'app="kube-scheduler"',
     kubeControllerManagerSelector: 'app="kube-controller-manager"',
-    kubeApiserverSelector: 'app="kube-apiserver"',
+    kubeApiserverSelector: 'app="kubernetes"',
     kubeProxySelector: 'app="kube-proxy"',
     showMultiCluster: true,
     clusterLabel: 'cluster_id',
@@ -19,7 +19,7 @@ kubernetes {
       dashboardNamePrefix: 'Kubernetes / ',
       linkPrefix: '.',
       minimumTimeInterval: '1m',
-      grafanaTimezone: "UTC",
+      grafanaTimezone: 'UTC',
 
       // Adjust tags to use our semantical scheme
       dashboardTags: ['origin:kubernetes-mixin', 'owner:team-ludacris'],
