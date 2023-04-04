@@ -20,8 +20,8 @@
             // below for instance.
             record: 'node_namespace_pod:kube_pod_info:',
             expr: |||
-              topk by(namespace, %(podLabel)s) (1,
-                max by (node, namespace, %(podLabel)s) (
+              topk by(%(clusterLabel)s, namespace, %(podLabel)s) (1,
+                max by (%(clusterLabel)s, node, namespace, %(podLabel)s) (
                   label_replace(kube_pod_info{%(kubeStateMetricsSelector)s,node!=""}, "%(podLabel)s", "$1", "pod", "(.*)")
               ))
             ||| % $._config,
@@ -30,11 +30,11 @@
             // This rule gives the number of CPUs per node.
             record: 'node:node_num_cpu:sum',
             expr: |||
-              count by (%(clusterLabel)s, node) (sum by (node, cpu) (
-                node_cpu_seconds_total{%(nodeExporterSelector)s}
-              * on (namespace, %(podLabel)s) group_left(node)
+              count by (%(clusterLabel)s, node) (
+                node_cpu_seconds_total{mode="idle",%(nodeExporterSelector)s}
+                * on (namespace, %(podLabel)s) group_left(node)
                 topk by(namespace, %(podLabel)s) (1, node_namespace_pod:kube_pod_info:)
-              ))
+              )
             ||| % $._config,
           },
           // Add separate rules for Available memory, so we can aggregate across clusters in dashboards.
@@ -50,6 +50,26 @@
                   node_memory_Slab_bytes{%(nodeExporterSelector)s}
                 )
               ) by (%(clusterLabel)s)
+            ||| % $._config,
+          },
+          {
+            // This rule gives cpu utilization per node.
+            record: 'node:node_cpu_utilization:ratio_rate5m',
+            expr: |||
+              avg by (%(clusterLabel)s, node) (
+                sum without (mode) (
+                  rate(node_cpu_seconds_total{mode!="idle",mode!="iowait",mode!="steal",%(nodeExporterSelector)s}[5m])
+                )
+              )
+            ||| % $._config,
+          },
+          {
+            // This rule gives cpu utilization per cluster
+            record: 'cluster:node_cpu:ratio_rate5m',
+            expr: |||
+              avg by (%(clusterLabel)s) (
+                node:node_cpu_utilization:ratio_rate5m
+              )
             ||| % $._config,
           },
         ],
