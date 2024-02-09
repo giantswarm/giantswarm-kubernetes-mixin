@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Generate yaml
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         persist-credentials: false
     - uses: actions/setup-go@v2
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Jsonnet linter
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         persist-credentials: false
     - uses: actions/setup-go@v2
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Grafana dashboard linter
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         persist-credentials: false
     - uses: actions/setup-go@v2
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Alerts linter
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         persist-credentials: false
     - uses: actions/setup-go@v2
@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Jsonnet formatter
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         persist-credentials: false
     - uses: actions/setup-go@v2
@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Unit tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         persist-credentials: false
     - uses: actions/setup-go@v2
