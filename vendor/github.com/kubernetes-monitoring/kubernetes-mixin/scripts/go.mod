@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/google/go-jsonnet v0.20.0
-	github.com/jsonnet-bundler/jsonnet-bundler v0.5.1
+	github.com/jsonnet-bundler/jsonnet-bundler v0.6.0
 	github.com/prometheus/prometheus v2.5.0+incompatible
 )
 
