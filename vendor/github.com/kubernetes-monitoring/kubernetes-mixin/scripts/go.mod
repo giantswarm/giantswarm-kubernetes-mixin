@@ -2,7 +2,7 @@ module _
 
 go 1.23.7
 
-toolchain go1.25.2
+toolchain go1.25.3
 
 require (
 	github.com/google/go-jsonnet v0.21.0
