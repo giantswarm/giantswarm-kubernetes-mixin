@@ -5,7 +5,7 @@ go 1.25.3
 require (
 	github.com/Kunde21/markdownfmt/v3 v3.1.0
 	github.com/cloudflare/pint v0.79.0
-	github.com/errata-ai/vale/v3 v3.13.0
+	github.com/errata-ai/vale/v3 v3.13.1
 	github.com/google/go-jsonnet v0.21.0
 	github.com/grafana/dashboard-linter v0.0.0-20250428211052-5e22d6dc65a1
 	github.com/jsonnet-bundler/jsonnet-bundler v0.6.0
@@ -92,7 +92,7 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v1.3.0 // indirect
 	github.com/errata-ai/ini v1.63.0 // indirect
 	github.com/errata-ai/regexp2 v1.7.0 // indirect
-	github.com/expr-lang/expr v1.17.0 // indirect
+	github.com/expr-lang/expr v1.17.7 // indirect
 	github.com/facette/natsort v0.0.0-20181210072756-2cd4dd1e2dcb // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
