@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/Kunde21/markdownfmt/v3 v3.1.0
 	github.com/cloudflare/pint v0.80.0
-	github.com/errata-ai/vale/v3 v3.14.1
+	github.com/errata-ai/vale/v3 v3.14.2
 	github.com/google/go-jsonnet v0.22.0
 	github.com/grafana/dashboard-linter v0.1.0
 	github.com/jsonnet-bundler/jsonnet-bundler v0.6.0
@@ -183,7 +183,7 @@ require (
 	github.com/nsf/jsondiff v0.0.0-20260207060731-8e8d90c4c0ac // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/oklog/ulid/v2 v2.1.1 // indirect
-	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/olekukonko/tablewriter v1.1.4 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/otiai10/copy v1.14.0 // indirect
