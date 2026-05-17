@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/Kunde21/markdownfmt/v3 v3.1.0
-	github.com/cloudflare/pint v0.80.0
+	github.com/cloudflare/pint v0.82.3
 	github.com/errata-ai/vale/v3 v3.14.2
 	github.com/google/go-jsonnet v0.22.0
 	github.com/grafana/dashboard-linter v0.1.1
@@ -154,7 +154,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.18.5 // indirect
+	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/kolo/xmlrpc v0.0.0-20220921171641-a4b6fa1dd06b // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/linode/linodego v1.66.0 // indirect
