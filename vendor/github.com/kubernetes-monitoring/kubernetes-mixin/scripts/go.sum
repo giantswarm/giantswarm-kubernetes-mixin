@@ -281,6 +281,7 @@ github.com/cloudflare/pint v0.79.0/go.mod h1:93kMn+BxJI3xw+ph5wkIXBq9IRqnRqDZCQr
 github.com/cloudflare/pint v0.80.0/go.mod h1:TGIVPgkvrejHtKWqTwJmmie+MlyZWqD9h7jZHzD0LuU=
 github.com/cloudflare/pint v0.82.3/go.mod h1:ybnvgiaJlY0ZyVdCrqGhurgd4ELVhHFb+yfTySif5nA=
 github.com/cloudflare/pint v0.83.0/go.mod h1:QcfmtMz4PiZ2+5Ry5fBtjTZJXemV9vdwLPXI5g8amx0=
+github.com/cloudflare/pint v0.84.0/go.mod h1:QcfmtMz4PiZ2+5Ry5fBtjTZJXemV9vdwLPXI5g8amx0=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
 github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
 github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
