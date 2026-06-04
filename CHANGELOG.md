@@ -9,6 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Replace team-turtles with team-tenet
 - 2026-01-14 - updated to mixins release 1.4.1
 - 2023-04-03 - updated to mixins release `release-0.12`
-
