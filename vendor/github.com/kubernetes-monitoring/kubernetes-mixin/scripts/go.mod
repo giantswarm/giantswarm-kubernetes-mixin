@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/Kunde21/markdownfmt/v3 v3.1.0
-	github.com/cloudflare/pint v0.84.0
+	github.com/cloudflare/pint v0.85.0
 	github.com/errata-ai/vale/v3 v3.14.2
 	github.com/google/go-jsonnet v0.22.0
 	github.com/grafana/dashboard-linter v0.1.1
@@ -198,7 +198,7 @@ require (
 	github.com/prometheus/client_golang v1.23.2 // indirect
 	github.com/prometheus/client_golang/exp v0.0.0-20260518105423-c9d5bc4c50a9 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/common v0.67.5 // indirect
+	github.com/prometheus/common v0.68.1 // indirect
 	github.com/prometheus/exporter-toolkit v0.16.0 // indirect
 	github.com/prometheus/otlptranslator v1.0.0 // indirect
 	github.com/prometheus/procfs v0.19.2 // indirect
