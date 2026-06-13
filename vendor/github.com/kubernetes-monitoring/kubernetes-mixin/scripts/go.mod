@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/Kunde21/markdownfmt/v3 v3.1.0
-	github.com/cloudflare/pint v0.85.0
+	github.com/cloudflare/pint v0.86.0
 	github.com/errata-ai/vale/v3 v3.14.2
 	github.com/google/go-jsonnet v0.22.0
 	github.com/grafana/dashboard-linter v0.1.1
@@ -221,7 +221,7 @@ require (
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tomwright/dasel/v2 v2.8.1 // indirect
-	github.com/urfave/cli/v3 v3.9.0 // indirect
+	github.com/urfave/cli/v3 v3.9.1 // indirect
 	github.com/vultr/govultr/v2 v2.17.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
