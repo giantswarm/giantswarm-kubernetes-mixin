@@ -9,7 +9,7 @@ require (
 	github.com/google/go-jsonnet v0.22.0
 	github.com/grafana/dashboard-linter v0.2.0
 	github.com/jsonnet-bundler/jsonnet-bundler v0.6.0
-	github.com/prometheus/prometheus v0.313.0
+	github.com/prometheus/prometheus v0.313.1
 )
 
 require (
