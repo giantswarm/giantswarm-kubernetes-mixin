@@ -667,6 +667,7 @@ github.com/grafana/dashboard-linter v0.0.0-20250428211052-5e22d6dc65a1/go.mod h1
 github.com/grafana/dashboard-linter v0.1.0/go.mod h1:a+7ibDpqYo+qNsuB32ElNymE6YMK8Y1MeMZ07cI2urI=
 github.com/grafana/dashboard-linter v0.1.1/go.mod h1:bT9YliXJRD+zps3lJ7vTwNEStQqnfKrdNL7fSYWte+Q=
 github.com/grafana/dashboard-linter v0.2.0/go.mod h1:1PNk77Cw1vr+jvF2E05BcDtzVgNl1hgDYckbMpNMqto=
+github.com/grafana/dashboard-linter v0.3.0/go.mod h1:1PNk77Cw1vr+jvF2E05BcDtzVgNl1hgDYckbMpNMqto=
 github.com/grafana/regexp v0.0.0-20250905093917-f7b3be9d1853 h1:cLN4IBkmkYZNnk7EAJ0BHIethd+J6LqxFNw5mSiI2bM=
 github.com/grafana/regexp v0.0.0-20250905093917-f7b3be9d1853/go.mod h1:+JKpmjMGhpgPL+rXZ5nsZieVzvarn86asRlBg4uNGnk=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2 h1:8Tjv8EJ+pM1xP8mK6egEbD1OgnVTyacbefKhmbLhIhU=

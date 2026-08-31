@@ -7,7 +7,7 @@ require (
 	github.com/cloudflare/pint v0.87.0
 	github.com/errata-ai/vale/v3 v3.19.0
 	github.com/google/go-jsonnet v0.22.0
-	github.com/grafana/dashboard-linter v0.2.0
+	github.com/grafana/dashboard-linter v0.3.0
 	github.com/jsonnet-bundler/jsonnet-bundler v0.6.0
 	github.com/prometheus/prometheus v0.314.0
 )
