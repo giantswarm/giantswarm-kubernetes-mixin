@@ -54,4 +54,11 @@ kubernetes {
       'workload-total.json': std.md5('workload-total.json'),
     },
   },
+
+  // The upstream apiserver burn-rate recording rules are not consumed by any Giant Swarm alert
+  // or dashboard: apiserver availability is covered by the Sloth SLO instead. Evaluating them
+  // over the longer windows is expensive, so drop the group rather than compute it for nothing.
+  prometheusRules+:: {
+    groups: std.filter(function(group) group.name != 'kube-apiserver-burnrate.rules', super.groups),
+  },
 }
