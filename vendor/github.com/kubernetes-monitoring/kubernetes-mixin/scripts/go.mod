@@ -5,7 +5,7 @@ go 1.27.0
 require (
 	github.com/Kunde21/markdownfmt/v3 v3.1.0
 	github.com/cloudflare/pint v0.88.0
-	github.com/errata-ai/vale/v3 v3.19.0
+	github.com/errata-ai/vale/v3 v3.21.0
 	github.com/google/go-jsonnet v0.22.0
 	github.com/grafana/dashboard-linter v0.3.0
 	github.com/jsonnet-bundler/jsonnet-bundler v0.6.0
