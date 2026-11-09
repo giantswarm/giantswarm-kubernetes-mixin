@@ -3,4 +3,12 @@
     // Base config - https://github.com/giantswarm/renovate-presets/blob/main/default.json5
     "github>giantswarm/renovate-presets:default.json5",
   ],
+  // ignorePaths is not mergeable: this list replaces the preset's list, so it repeats the preset's entries.
+  "ignorePaths": [
+    ".github/workflows/zz_generated.*",
+    ".github/workflows/codeql-analysis.yml",
+    ".github/workflows/pre_commit_*.yaml",
+    // Managed by jsonnet-bundler (`jb install`).
+    "vendor/**",
+  ],
 }
