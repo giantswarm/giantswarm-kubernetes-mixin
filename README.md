@@ -7,26 +7,23 @@ In this repo, we generate the [official kubernetes mixins](https://github.com/ku
 
 ## Update
 
-To update the current mixin to an upstream release:
-- Check for a suitable [release](https://github.com/kubernetes-monitoring/kubernetes-mixin#releases)
+Renovate opens a pull request for each new upstream [release](https://github.com/kubernetes-monitoring/kubernetes-mixin/tags). It updates `jsonnetfile.json`, `jsonnetfile.lock.json` and `vendor/`.
+
+To update the current mixin to an upstream release by hand:
+- Check for a suitable [release](https://github.com/kubernetes-monitoring/kubernetes-mixin/tags)
 - Run:
     ```bash
-    jb install github.com/kubernetes-monitoring/kubernetes-mixin@<branch_name>
+    jb install github.com/kubernetes-monitoring/kubernetes-mixin@<tag>
     ```
 
-### Prometheus rules (records)
+### Prometheus rules and Grafana dashboards
 
-To update the recording rules run:
+To regenerate `files/prometheus-rules/rules.yml` and `files/dashboards/` run:
 ```bash
-jsonnet -J vendor -S -e 'std.manifestYamlDoc((import "mixin.libsonnet").prometheusRules)' | yq -P >files/prometheus-rules/rules.yml
+make generate
 ```
 
-### Grafana dashboards
-
-To update the dashboards run:
-```bash
-jsonnet -J vendor -m files/dashboards -e '(import "mixin.libsonnet").grafanaDashboards'
-```
+`files/dashboards/statefulset.json` is maintained here: upstream no longer ships it. `make generate` leaves it unchanged.
 
 ### Next steps
 
