@@ -1,0 +1,45 @@
+name: Generated files
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  JSONNET_VERSION: 0.19.1
+  JSONNET_SHA256: 80595aaec41f8c65b1fee503dc171ecc1d4706a37b5c4dd7d5c24cf2072deda5
+  YQ_VERSION: 4.25.2
+  YQ_SHA256: 042f7462ec8378f8b0d3bac85d1b1a063b63beef5d8e3826bb2377294116ae90
+
+jobs:
+  check:
+    name: make generate is up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install jsonnet and yq
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          cd "$RUNNER_TEMP"
+          curl -sSfL -o jsonnet.tar.gz "https://github.com/google/go-jsonnet/releases/download/v${JSONNET_VERSION}/go-jsonnet_${JSONNET_VERSION}_Linux_x86_64.tar.gz"
+          echo "${JSONNET_SHA256}  jsonnet.tar.gz" | sha256sum -c -
+          tar -xzf jsonnet.tar.gz -C bin jsonnet
+          curl -sSfL -o bin/yq "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64"
+          echo "${YQ_SHA256}  bin/yq" | sha256sum -c -
+          chmod +x bin/yq
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Run make generate
+        run: make generate
+
+      - name: Check for changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            echo "::error::Generated files are stale. Run \`make generate\`, review the diff and push it to this branch."
+            exit 1
+          fi
