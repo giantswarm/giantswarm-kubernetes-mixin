@@ -1,3 +1,18 @@
+// Copyright kubernetes-mixin Authors
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-latest/main.libsonnet';
 
 local prometheus = g.query.prometheus;
@@ -102,7 +117,7 @@ local var = g.dashboard.variable;
   local links = {
     namespace: {
       title: 'Drill down to pods',
-      url: '%(prefix)s/d/%(uid)s/k8s-resources-windows-namespace?${datasource:queryparam}&var-cluster=$cluster&var-namespace=${__data.fields.Namespace}' % {
+      url: '%(prefix)s/d/%(uid)s?${datasource:queryparam}&var-cluster=$cluster&var-namespace=${__data.fields.Namespace}' % {
         uid: $._config.grafanaDashboardIDs['k8s-resources-windows-namespace.json'],
         prefix: $._config.grafanaK8s.linkPrefix,
       },
@@ -110,7 +125,7 @@ local var = g.dashboard.variable;
 
     pod: {
       title: 'Drill down to pods',
-      url: '%(prefix)s/d/%(uid)s/k8s-resources-windows-pod?${datasource:queryparam}&var-cluster=$cluster&var-namespace=$namespace&var-pod=${__data.fields.Pod}' % {
+      url: '%(prefix)s/d/%(uid)s?${datasource:queryparam}&var-cluster=$cluster&var-namespace=$namespace&var-pod=${__data.fields.Pod}' % {
         uid: $._config.grafanaDashboardIDs['k8s-resources-windows-pod.json'],
         prefix: $._config.grafanaK8s.linkPrefix,
       },

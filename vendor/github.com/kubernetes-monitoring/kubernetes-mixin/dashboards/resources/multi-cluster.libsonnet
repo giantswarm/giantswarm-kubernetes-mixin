@@ -1,9 +1,25 @@
+// Copyright kubernetes-mixin Authors
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+local defaultQueries = import './queries/multi-cluster.libsonnet';
+local defaultVariables = import './variables/multi-cluster.libsonnet';
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-latest/main.libsonnet';
 
 local prometheus = g.query.prometheus;
 local stat = g.panel.stat;
 local timeSeries = g.panel.timeSeries;
-local var = g.dashboard.variable;
 
 {
   local statPanel(title, unit, query) =
@@ -32,25 +48,20 @@ local var = g.dashboard.variable;
   grafanaDashboards+::
     if $._config.showMultiCluster then {
       'k8s-resources-multicluster.json':
-        local variables = {
-          datasource:
-            var.datasource.new('datasource', 'prometheus')
-            + var.datasource.withRegex($._config.datasourceFilterRegex)
-            + var.datasource.generalOptions.showOnDashboard.withLabelAndValue()
-            + var.datasource.generalOptions.withLabel('Data source')
-            + {
-              current: {
-                selected: true,
-                text: $._config.datasourceName,
-                value: $._config.datasourceName,
-              },
-            },
-        };
+        // Allow overriding queries via $._queries.multiCluster, otherwise use default
+        local queries = if std.objectHas($, '_queries') && std.objectHas($._queries, 'multiCluster')
+        then $._queries.multiCluster
+        else defaultQueries;
+
+        // Allow overriding variables via $._variables.multiCluster, otherwise use default
+        local variables = if std.objectHas($, '_variables') && std.objectHas($._variables, 'multiCluster')
+        then $._variables.multiCluster($._config)
+        else defaultVariables.multiCluster($._config);
 
         local links = {
           cluster: {
             title: 'Drill down',
-            url: '%(prefix)s/d/%(uid)s/kubernetes-compute-resources-cluster?${datasource:queryparam}&var-cluster=${__data.fields.Cluster}' % {
+            url: '%(prefix)s/d/%(uid)s?${datasource:queryparam}&var-cluster=${__data.fields.Cluster}' % {
               uid: $._config.grafanaDashboardIDs['k8s-resources-cluster.json'],
               prefix: $._config.grafanaK8s.linkPrefix,
             },
@@ -62,44 +73,44 @@ local var = g.dashboard.variable;
             statPanel(
               'CPU Utilisation',
               'none',
-              'sum(cluster:node_cpu:ratio_rate5m) / count(cluster:node_cpu:ratio_rate5m)'
+              queries.cpuUtilisation($._config)
             ),
 
             statPanel(
               'CPU Requests Commitment',
               'percentunit',
-              'sum(kube_pod_container_resource_requests{%(kubeStateMetricsSelector)s, resource="cpu"}) / sum(kube_node_status_allocatable{%(kubeStateMetricsSelector)s, resource="cpu"})' % $._config
+              queries.cpuRequestsCommitment($._config)
             ),
 
             statPanel(
               'CPU Limits Commitment',
               'percentunit',
-              'sum(kube_pod_container_resource_limits{%(kubeStateMetricsSelector)s, resource="cpu"}) / sum(kube_node_status_allocatable{%(kubeStateMetricsSelector)s, resource="cpu"})' % $._config
+              queries.cpuLimitsCommitment($._config)
             ),
 
             statPanel(
               'Memory Utilisation',
               'percentunit',
-              '1 - sum(:node_memory_MemAvailable_bytes:sum) / sum(node_memory_MemTotal_bytes{%(nodeExporterSelector)s})' % $._config
+              queries.memoryUtilisation($._config)
             ),
 
             statPanel(
               'Memory Requests Commitment',
               'percentunit',
-              'sum(kube_pod_container_resource_requests{%(kubeStateMetricsSelector)s, resource="memory"}) / sum(kube_node_status_allocatable{%(kubeStateMetricsSelector)s, resource="memory"})' % $._config
+              queries.memoryRequestsCommitment($._config)
             ),
 
             statPanel(
               'Memory Limits Commitment',
               'percentunit',
-              'sum(kube_pod_container_resource_limits{%(kubeStateMetricsSelector)s, resource="memory"}) / sum(kube_node_status_allocatable{%(kubeStateMetricsSelector)s, resource="memory"})' % $._config
+              queries.memoryLimitsCommitment($._config)
             ),
           ],
 
           cpuUsage: [
             tsPanel.new('CPU Usage')
             + tsPanel.queryOptions.withTargets([
-              prometheus.new('${datasource}', 'sum(max by (%(clusterLabel)s, %(namespaceLabel)s, pod, container)(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate5m)) by (%(clusterLabel)s)' % $._config)
+              prometheus.new('${datasource}', queries.cpuUsageByCluster($._config))
               + prometheus.withLegendFormat('__auto'),
             ]),
           ],
@@ -107,19 +118,19 @@ local var = g.dashboard.variable;
           cpuQuota: [
             g.panel.table.new('CPU Quota')
             + g.panel.table.queryOptions.withTargets([
-              prometheus.new('${datasource}', 'sum(max by (%(clusterLabel)s, %(namespaceLabel)s, pod, container)(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate5m)) by (%(clusterLabel)s)' % $._config)
+              prometheus.new('${datasource}', queries.cpuUsageByCluster($._config))
               + prometheus.withInstant(true)
               + prometheus.withFormat('table'),
-              prometheus.new('${datasource}', 'sum(kube_pod_container_resource_requests{%(kubeStateMetricsSelector)s, resource="cpu"}) by (%(clusterLabel)s)' % $._config)
+              prometheus.new('${datasource}', queries.cpuRequestsByCluster($._config))
               + prometheus.withInstant(true)
               + prometheus.withFormat('table'),
-              prometheus.new('${datasource}', 'sum(max by (%(clusterLabel)s, %(namespaceLabel)s, pod, container)(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate5m)) by (%(clusterLabel)s) / sum(kube_pod_container_resource_requests{%(kubeStateMetricsSelector)s, resource="cpu"}) by (%(clusterLabel)s)' % $._config)
+              prometheus.new('${datasource}', queries.cpuUsageVsRequests($._config))
               + prometheus.withInstant(true)
               + prometheus.withFormat('table'),
-              prometheus.new('${datasource}', 'sum(kube_pod_container_resource_limits{%(kubeStateMetricsSelector)s, resource="cpu"}) by (%(clusterLabel)s)' % $._config)
+              prometheus.new('${datasource}', queries.cpuLimitsByCluster($._config))
               + prometheus.withInstant(true)
               + prometheus.withFormat('table'),
-              prometheus.new('${datasource}', 'sum(max by (%(clusterLabel)s, %(namespaceLabel)s, pod, container)(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate5m)) by (%(clusterLabel)s) / sum(kube_pod_container_resource_limits{%(kubeStateMetricsSelector)s, resource="cpu"}) by (%(clusterLabel)s)' % $._config)
+              prometheus.new('${datasource}', queries.cpuUsageVsLimits($._config))
               + prometheus.withInstant(true)
               + prometheus.withFormat('table'),
             ])
@@ -197,7 +208,7 @@ local var = g.dashboard.variable;
             + tsPanel.standardOptions.withUnit('bytes')
             + tsPanel.queryOptions.withTargets([
               // Not using container_memory_usage_bytes here because that includes page cache
-              prometheus.new('${datasource}', 'sum(max by (%(clusterLabel)s, %(namespaceLabel)s, pod, container)(container_memory_rss{%(cadvisorSelector)s, container!=""})) by (%(clusterLabel)s)' % $._config)
+              prometheus.new('${datasource}', queries.memoryUsageByCluster($._config))
               + prometheus.withLegendFormat('__auto'),
             ]),
           ],
@@ -206,19 +217,19 @@ local var = g.dashboard.variable;
             g.panel.table.new('Memory Requests by Cluster')
             + g.panel.table.standardOptions.withUnit('bytes')
             + g.panel.table.queryOptions.withTargets([
-              prometheus.new('${datasource}', 'sum(max by (%(clusterLabel)s, %(namespaceLabel)s, pod, container)(container_memory_rss{%(cadvisorSelector)s, container!=""})) by (%(clusterLabel)s)' % $._config)
+              prometheus.new('${datasource}', queries.memoryUsageByCluster($._config))
               + prometheus.withInstant(true)
               + prometheus.withFormat('table'),
-              prometheus.new('${datasource}', 'sum(kube_pod_container_resource_requests{%(kubeStateMetricsSelector)s, resource="memory"}) by (%(clusterLabel)s)' % $._config)
+              prometheus.new('${datasource}', queries.memoryRequestsByCluster($._config))
               + prometheus.withInstant(true)
               + prometheus.withFormat('table'),
-              prometheus.new('${datasource}', 'sum(max by (%(clusterLabel)s, %(namespaceLabel)s, pod, container)(container_memory_rss{%(cadvisorSelector)s, container!=""})) by (%(clusterLabel)s) / sum(kube_pod_container_resource_requests{%(kubeStateMetricsSelector)s, resource="memory"}) by (%(clusterLabel)s)' % $._config)
+              prometheus.new('${datasource}', queries.memoryUsageVsRequests($._config))
               + prometheus.withInstant(true)
               + prometheus.withFormat('table'),
-              prometheus.new('${datasource}', 'sum(kube_pod_container_resource_limits{%(kubeStateMetricsSelector)s, resource="memory"}) by (%(clusterLabel)s)' % $._config)
+              prometheus.new('${datasource}', queries.memoryLimitsByCluster($._config))
               + prometheus.withInstant(true)
               + prometheus.withFormat('table'),
-              prometheus.new('${datasource}', 'sum(max by (%(clusterLabel)s, %(namespaceLabel)s, pod, container)(container_memory_rss{%(cadvisorSelector)s, container!=""})) by (%(clusterLabel)s) / sum(kube_pod_container_resource_limits{%(kubeStateMetricsSelector)s, resource="memory"}) by (%(clusterLabel)s)' % $._config)
+              prometheus.new('${datasource}', queries.memoryUsageVsLimits($._config))
               + prometheus.withInstant(true)
               + prometheus.withFormat('table'),
             ])

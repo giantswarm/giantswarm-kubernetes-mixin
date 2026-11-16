@@ -1,6 +1,22 @@
+# Copyright kubernetes-mixin Authors
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 BIN_DIR ?= $(shell pwd)/tmp/bin
 
 JSONNET_VENDOR=vendor
+GRAFANA_DASHBOARD_LINTER_VERSION=v0.1.0
 GRAFANA_DASHBOARD_LINTER_BIN=$(BIN_DIR)/dashboard-linter
 JB_BIN=$(BIN_DIR)/jb
 JSONNET_BIN=$(BIN_DIR)/jsonnet
@@ -11,7 +27,8 @@ MARKDOWNFMT_BIN=$(BIN_DIR)/markdownfmt
 VALE_BIN=$(BIN_DIR)/vale
 PROMTOOL_BIN=$(BIN_DIR)/promtool
 PINT_BIN=$(BIN_DIR)/pint
-TOOLING=$(JB_BIN) $(JSONNETLINT_BIN) $(JSONNET_BIN) $(JSONNETFMT_BIN) $(PROMTOOL_BIN) $(GRAFANA_DASHBOARD_LINTER_BIN) $(MARKDOWNFMT_BIN) $(VALE_BIN) $(PINT_BIN)
+TOOLING=$(JB_BIN) $(JSONNETLINT_BIN) $(JSONNET_BIN) $(JSONNETFMT_BIN) $(PROMTOOL_BIN) $(MARKDOWNFMT_BIN) $(VALE_BIN) $(PINT_BIN)
+NPROC ?= $(shell nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)
 JSONNETFMT_ARGS=-n 2 --max-blank-lines 2 --string-style s --comment-style s
 SRC_DIR ?=dashboards
 OUT_DIR ?=dashboards_out
@@ -84,7 +101,7 @@ fmt: jsonnet-fmt markdownfmt
 .PHONY: jsonnet-fmt
 jsonnet-fmt: $(JSONNETFMT_BIN)
 	@find . -name 'vendor' -prune -o -name '*.libsonnet' -print -o -name '*.jsonnet' -print | \
-		xargs -n 1 -- $(JSONNETFMT_BIN) $(JSONNETFMT_ARGS) -i
+		xargs -n 1 -P $(NPROC) -- $(JSONNETFMT_BIN) $(JSONNETFMT_ARGS) -i
 
 .PHONY: markdownfmt
 markdownfmt: $(MARKDOWNFMT_BIN)
@@ -107,7 +124,7 @@ lint: jsonnet-lint alerts-lint dashboards-lint vale pint-lint
 .PHONY: jsonnet-lint
 jsonnet-lint: $(JSONNETLINT_BIN) $(JSONNET_VENDOR)
 	@find . -name 'vendor' -prune -o -name '*.libsonnet' -print -o -name '*.jsonnet' -print | \
-		xargs -n 1 -- $(JSONNETLINT_BIN) -J vendor
+		xargs -n 1 -P $(NPROC) -- $(JSONNETLINT_BIN) -J vendor
 
 .PHONY: alerts-lint
 alerts-lint: $(PROMTOOL_BIN) prometheus_alerts.yaml prometheus_rules.yaml
@@ -121,15 +138,16 @@ $(OUT_DIR)/.lint: $(OUT_DIR)/.dashboards-generated
 dashboards-lint: $(GRAFANA_DASHBOARD_LINTER_BIN) $(OUT_DIR)/.lint
 	# Replace $$interval:$$resolution var with $$__rate_interval to make dashboard-linter happy.
 	@sed -i -e 's/$$interval:$$resolution/$$__rate_interval/g' $(OUT_DIR)/*.json
-	@find $(OUT_DIR) -name '*.json' -print0 | xargs -n 1 -0 $(GRAFANA_DASHBOARD_LINTER_BIN) lint --strict
+	@find $(OUT_DIR) -name '*.json' -print0 | xargs -n 1 -P $(NPROC) -0 $(GRAFANA_DASHBOARD_LINTER_BIN) lint --strict
 
 .PHONY: vale
 vale: $(VALE_BIN)
-	@$(VALE_BIN) sync && \
+	@mkdir -p .vale/styles && \
+		$(VALE_BIN) sync && \
 		$(VALE_BIN) $(MD_FILES)
 
 .PHONY: pint-lint
-pint-lint: generate $(PINT_BIN)
+pint-lint: prometheus_alerts.yaml prometheus_rules.yaml $(PINT_BIN)
 	@# Pint will not exit with a non-zero status code if there are linting issues.
 	@output=$$($(PINT_BIN) -n -o -l WARN lint prometheus_alerts.yaml prometheus_rules.yaml 2>&1); \
 	if [ -n "$$output" ]; then \
@@ -149,9 +167,29 @@ test: $(PROMTOOL_BIN) prometheus_alerts.yaml prometheus_rules.yaml
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
+.PHONY: build-tools
+build-tools: $(BIN_DIR)
+	@echo Installing tools from scripts/tools.go
+	@cd scripts && go list -e -mod=mod -tags tools -f '{{ range .Imports }}{{ printf "%s\n" .}}{{end}}' ./ | xargs -t -P $(NPROC) -I % go build -mod=mod -o $(BIN_DIR) %
+
 $(TOOLING): $(BIN_DIR)
-	@echo Installing tools from hack/tools.go
-	@cd scripts && go list -e -mod=mod -tags tools -f '{{ range .Imports }}{{ printf "%s\n" .}}{{end}}' ./ | xargs -tI % go build -mod=mod -o $(BIN_DIR) %
+	@$(MAKE) build-tools
+
+# dashboard-linter is distributed as a prebuilt binary; building from source is
+# unsupported upstream because its go.mod uses a `replace` directive.
+DASHBOARD_LINTER_OS = $(shell uname -s | tr '[:upper:]' '[:lower:]')
+DASHBOARD_LINTER_ARCH = $(shell uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+DASHBOARD_LINTER_ARCHIVE = dashboard-linter_$(GRAFANA_DASHBOARD_LINTER_VERSION:v%=%)_$(DASHBOARD_LINTER_OS)_$(DASHBOARD_LINTER_ARCH).tar.gz
+DASHBOARD_LINTER_URL = https://github.com/grafana/dashboard-linter/releases/download/$(GRAFANA_DASHBOARD_LINTER_VERSION)/$(DASHBOARD_LINTER_ARCHIVE)
+
+$(GRAFANA_DASHBOARD_LINTER_BIN): | $(BIN_DIR)
+	@echo "Downloading dashboard-linter $(GRAFANA_DASHBOARD_LINTER_VERSION) ($(DASHBOARD_LINTER_OS)/$(DASHBOARD_LINTER_ARCH))"
+	@tmp=$$(mktemp -d) && \
+		curl -sSfL "$(DASHBOARD_LINTER_URL)" -o "$$tmp/$(DASHBOARD_LINTER_ARCHIVE)" && \
+		curl -sSfL "https://github.com/grafana/dashboard-linter/releases/download/$(GRAFANA_DASHBOARD_LINTER_VERSION)/checksums.txt" -o "$$tmp/checksums.txt" && \
+		(cd "$$tmp" && grep "  $(DASHBOARD_LINTER_ARCHIVE)$$" checksums.txt | shasum -a 256 -c -) && \
+		tar -xzf "$$tmp/$(DASHBOARD_LINTER_ARCHIVE)" -C "$(BIN_DIR)" dashboard-linter && \
+		rm -rf "$$tmp"
 
 ########################################
 # "check-with-upstream" workflow checks.
