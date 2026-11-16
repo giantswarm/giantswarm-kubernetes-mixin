@@ -15,7 +15,7 @@
     {
       // Upstream tags are `version-X.Y.Z`.
       "matchManagers": ["jsonnet-bundler"],
-      "matchPackageNames": ["github.com/kubernetes-monitoring/kubernetes-mixin"],
+      "matchDepNames": ["github.com/kubernetes-monitoring/kubernetes-mixin"],
       "versioning": "regex:^version-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
     },
   ],
