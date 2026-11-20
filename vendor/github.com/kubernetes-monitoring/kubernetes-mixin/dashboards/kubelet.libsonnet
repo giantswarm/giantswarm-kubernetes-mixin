@@ -1,3 +1,18 @@
+// Copyright kubernetes-mixin Authors
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-latest/main.libsonnet';
 
 local prometheus = g.query.prometheus;
@@ -81,7 +96,7 @@ local var = g.dashboard.variable;
         statRunningPods:
           statPanel('Running Pods', 'none', 'sum(kubelet_running_pods{%(clusterLabel)s="$cluster", %(kubeletSelector)s, instance=~"$instance"})' % $._config),
         statRunningContainers:
-          statPanel('Running Containers', 'none', 'sum(kubelet_running_containers{%(clusterLabel)s="$cluster", %(kubeletSelector)s, instance=~"$instance"})' % $._config),
+          statPanel('Running Containers', 'none', 'sum(kubelet_running_containers{%(clusterLabel)s="$cluster", %(kubeletSelector)s, container_state="running", instance=~"$instance"})' % $._config),
         statActualVolumeCount:
           statPanel('Actual Volume Count', 'none', 'sum(volume_manager_total_volumes{%(clusterLabel)s="$cluster", %(kubeletSelector)s, instance=~"$instance", state="actual_state_of_world"})' % $._config),
         statDesiredVolumeCount:

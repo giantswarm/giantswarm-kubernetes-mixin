@@ -1,3 +1,18 @@
+// Copyright kubernetes-mixin Authors
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 local utils = import '../lib/utils.libsonnet';
 
 {
@@ -41,10 +56,18 @@ local utils = import '../lib/utils.libsonnet';
               sum by (namespace, pod, job, %(clusterLabel)s) (
                 max by(namespace, pod, job, %(clusterLabel)s) (
                   kube_pod_status_phase{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, phase=~"Pending|Unknown"}
-                ) * on(namespace, pod, %(clusterLabel)s) group_left(owner_kind) topk by(namespace, pod, %(clusterLabel)s) (
+                  or
+                  (
+                    kube_pod_status_phase{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, phase="Running"} == 1
+                    and on(namespace, pod, %(clusterLabel)s)
+                    kube_pod_status_ready{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, condition="true"} == 0
+                  )
+                ) * on(namespace, pod, %(clusterLabel)s) group_left() topk by(namespace, pod, %(clusterLabel)s) (
                   1, max by(namespace, pod, owner_kind, %(clusterLabel)s) (kube_pod_owner{owner_kind!="Job"})
                 )
               ) > 0
+              unless on(namespace, pod, %(clusterLabel)s)
+              kube_pod_status_reason{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, reason="SchedulingGated"} == 1
             ||| % $._config,
             labels: {
               severity: 'warning',
@@ -344,9 +367,16 @@ local utils = import '../lib/utils.libsonnet';
           },
           {
             expr: |||
-              kube_horizontalpodautoscaler_status_current_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
-                ==
-              kube_horizontalpodautoscaler_spec_max_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              (
+                kube_horizontalpodautoscaler_status_current_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+                  ==
+                kube_horizontalpodautoscaler_spec_max_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              )
+              and on(namespace, horizontalpodautoscaler, %(clusterLabel)s) (
+                kube_horizontalpodautoscaler_spec_max_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+                  !=
+                kube_horizontalpodautoscaler_spec_min_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              )
             ||| % $._config,
             labels: {
               severity: 'warning',

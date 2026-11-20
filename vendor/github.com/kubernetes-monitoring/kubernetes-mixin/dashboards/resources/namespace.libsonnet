@@ -1,3 +1,18 @@
+// Copyright kubernetes-mixin Authors
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 local defaultQueries = import './queries/namespace.libsonnet';
 local defaultVariables = import './variables/namespace.libsonnet';
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-latest/main.libsonnet';
@@ -49,7 +64,7 @@ local timeSeries = g.panel.timeSeries;
       local links = {
         pod: {
           title: 'Drill down to pods',
-          url: '%(prefix)s/d/%(uid)s/k8s-resources-pod?${datasource:queryparam}&var-cluster=$cluster&var-namespace=$namespace&var-pod=${__data.fields.Pod}' % {
+          url: '%(prefix)s/d/%(uid)s?${datasource:queryparam}&var-cluster=$cluster&var-namespace=$namespace&var-pod=${__data.fields.Pod}' % {
             uid: $._config.grafanaDashboardIDs['k8s-resources-pod.json'],
             prefix: $._config.grafanaK8s.linkPrefix,
           },
@@ -571,7 +586,7 @@ local timeSeries = g.panel.timeSeries;
         + tsPanel.queryOptions.withTargets([
           prometheus.new(
             '${datasource}',
-            queries.rateOfReceivedPackets($._config)
+            queries.networkReceivePackets($._config)
           )
           + prometheus.withLegendFormat('__auto'),
         ]),
@@ -581,7 +596,7 @@ local timeSeries = g.panel.timeSeries;
         + tsPanel.queryOptions.withTargets([
           prometheus.new(
             '${datasource}',
-            queries.rateOfTransmittedPackets($._config)
+            queries.networkTransmitPackets($._config)
           )
           + prometheus.withLegendFormat('__auto'),
         ]),
@@ -591,7 +606,7 @@ local timeSeries = g.panel.timeSeries;
         + tsPanel.queryOptions.withTargets([
           prometheus.new(
             '${datasource}',
-            queries.rateOfReceivedPacketsDropped($._config)
+            queries.networkReceivePacketsDropped($._config)
           )
           + prometheus.withLegendFormat('__auto'),
         ]),
@@ -601,7 +616,7 @@ local timeSeries = g.panel.timeSeries;
         + tsPanel.queryOptions.withTargets([
           prometheus.new(
             '${datasource}',
-            queries.rateOfTransmittedPacketsDropped($._config)
+            queries.networkTransmitPacketsDropped($._config)
           )
           + prometheus.withLegendFormat('__auto'),
         ]),
